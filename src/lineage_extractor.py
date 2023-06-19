@@ -10,11 +10,11 @@ SAMPLE_NUMBER = 100
 
 
 def download_lineage_meta():
-    url = 'https://www.ebi.ac.uk/ebisearch/ws/rest/embl-covid19/download?query=&format=tsv&fields=id,lineage,\
-    collection_date,country,center_name,host,TAXON,coverage,who'
+    url = 'https://www.ebi.ac.uk/ebisearch/ws/rest/embl-covid19/download?query=&format=tsv&fields=id,lineage,collection_date,country,center_name,host,TAXON,coverage,who'
     print("downloading lineage_meta.tsv")
 
     response = requests.get(url)
+    print("finished downloading lineage_meta.tsv")
 
     if response.status_code == 200:
         data = response.text
@@ -53,6 +53,7 @@ def get_data_for_classifier(classifier_type: str = 'common'):
         # get random SAMPLE_NUMBER accession id
         lineages_accession_id_dict[lineage] = random.sample(lineages_accession_id_dict[lineage], SAMPLE_NUMBER)
         download_lineage_accessions(lineages_accession_id_dict[lineage], f'./data/{classifier_type}/{lineage}.fasta')
+        print(f"running request ./data/{classifier_type}/{lineage}.fasta")
 
 
 def download_lineage_accessions(accession_ids: list = None, output_file: str = None):
