@@ -61,7 +61,7 @@ def k_merprepare_data(data_encoded):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     return X_train, X_test, y_train, y_test, le.classes_
 
-data_directory = './data/tmp'
+data_directory = './data/common'
 data = load_data(data_directory)
 k_mers_count_dict = data_into_kmers_count(data)
 
