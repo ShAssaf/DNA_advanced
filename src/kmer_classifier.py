@@ -1,45 +1,42 @@
-import os
-
-
-import torch
+import numpy
+import numpy as np
 import pytorch_lightning as pl
-import torch.nn as nn
-import torchmetrics
-from Bio import SeqIO
-from Bio.Seq import translate
+import torch
+from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelBinarizer
 from sklearn.preprocessing import LabelEncoder
-from sympy import evaluate
-from torch import flatten
 from torch.utils.data import DataLoader
-import torch.nn.functional as F
 
-from src.common_func import filter_nonstandard, load_data
+from src.common_func import load_data
 from src.netmodel import Net
 
 
-# Load data from fasta files
+def Kmers_funct(seq, size):
+    return [seq[x:x+size].lower() for x in range(len(seq) - size + 1)]
 
 
-# One hot encoding
-def one_hot_encoding(data):
-    # remove 'N' from sequences and then one-hot encode
-    data = {lineage: [filter_nonstandard(seq) for seq in sequences] for lineage, sequences in data.items()}
-    encoder = LabelBinarizer()
-    data_encoded = {lineage: [encoder.fit_transform(list(seq)) for seq in sequences]
-                    for lineage, sequences in data.items()}
-    return data_encoded, encoder.classes_
 
-# Prepare data for the model
-def prepare_data(data_encoded, classes):
+def data_into_kmers_count(data):
+    cv = CountVectorizer()
+    k_mers_count_dict = {}
+    for lineage, sequences in data.items():
+        k_mers_sequences = []
+        for sequence in sequences:
+            k_mers_sequences.append(' '.join(Kmers_funct(sequence, size=6)))
+        k_mers_sequences_count = cv.fit_transform(k_mers_sequences).toarray()
+        k_mers_count_dict[lineage] = numpy.array(k_mers_sequences_count)
+    return k_mers_count_dict
+
+def k_merprepare_data(data_encoded):
     X = []
     y = []
+    size = 100
     min_seq_len = min([len(arr) for values in data_encoded.values() for arr in values])
+    resize_len =size - min_seq_len % size
     for lineage, sequences in data_encoded.items():
 
         for sequence in sequences:
-            X.append(sequence[:min_seq_len])
+            X.append(np.resize( sequence[:min_seq_len] ,min_seq_len+resize_len).reshape(-1,size))
             y.append(lineage)
 
     le = LabelEncoder()
@@ -48,17 +45,11 @@ def prepare_data(data_encoded, classes):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     return X_train, X_test, y_train, y_test, le.classes_
 
-
-# Define the model
-
-
-
-# Load data
 data_directory = './data/common'
 data = load_data(data_directory)
-data_encoded, classes = one_hot_encoding(data)
+k_mers_count_dict = data_into_kmers_count(data)
 
-X_train, X_test, y_train, y_test, classes = prepare_data(data_encoded, classes)
+X_train, X_test, y_train, y_test, classes = k_merprepare_data(k_mers_count_dict)
 
 # Convert data to torch tensors
 X_train = torch.tensor(X_train, dtype=torch.float32)
