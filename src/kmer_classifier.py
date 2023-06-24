@@ -83,7 +83,7 @@ val_loader = DataLoader(test_data, batch_size=32)
 model = Net(input_shape=X_train.shape[1:], num_classes=len(classes))
 
 # Train the model
-trainer = pl.Trainer(max_epochs=50, devices=1) #, accelerator="gpu"
+trainer = pl.Trainer(max_epochs=25, devices=1) #, accelerator="gpu"
 trainer.fit(model, train_loader, val_loader)
 # Retrieve the training and validation losses from the trainer object
 

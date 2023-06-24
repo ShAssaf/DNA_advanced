@@ -5,7 +5,7 @@ import random
 import pandas as pd
 import requests
 
-VARIANT_NUMBER = 50
+VARIANT_NUMBER = 100
 SAMPLE_NUMBER = 100
 
 
