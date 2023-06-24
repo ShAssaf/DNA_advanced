@@ -54,29 +54,34 @@ def prepare_data(data_encoded, classes):
 
 
 # Load data
-data_directory = './data/common'
+data_directory = './data/tmp'
+print("loading data...")
 data = load_data(data_directory)
+print("encoding data")
 data_encoded, classes = one_hot_encoding(data)
-
+print("preparing data")
 X_train, X_test, y_train, y_test, classes = prepare_data(data_encoded, classes)
 
 # Convert data to torch tensors
+print("converting data...")
 X_train = torch.tensor(X_train, dtype=torch.float32)
 X_test = torch.tensor(X_test, dtype=torch.float32)
 y_train = torch.tensor(y_train, dtype=torch.long)
 y_test = torch.tensor(y_test, dtype=torch.long)
 
 # Create data loaders
+print("creating loaders")
 train_data = torch.utils.data.TensorDataset(X_train, y_train)
 test_data = torch.utils.data.TensorDataset(X_test, y_test)
 train_loader = DataLoader(train_data, batch_size=32)
 val_loader = DataLoader(test_data, batch_size=32)
-
+print("creating model")
 # Create model
 model = Net(input_shape=X_train.shape[1:], num_classes=len(classes))
 
 # Train the model
-trainer = pl.Trainer(max_epochs=200, devices=1) #, accelerator="gpu"
+print("training model")
+trainer = pl.Trainer(max_epochs=100, devices=1) #, accelerator="gpu"
 trainer.fit(model, train_loader, val_loader)
 # Retrieve the training and validation losses from the trainer object
 

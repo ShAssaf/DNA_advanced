@@ -8,12 +8,14 @@ class Net(pl.LightningModule):
         super().__init__()
         self.conv1 = nn.Conv1d(input_shape[0], 32, 3, padding=1)
         self.conv2 = nn.Conv1d(32, 64, 3, padding=1)
-        self.fc1 = nn.Linear(input_shape[1] * 64, 128)
-        self.fc2 = nn.Linear(128, num_classes)
+        self.conv3 = nn.Conv1d(64,128,3,padding=1)
+        self.fc1 = nn.Linear(input_shape[1] * 128, 512)
+        self.fc2 = nn.Linear(512, num_classes)
 
     def forward(self, x):
         x = torch.relu(self.conv1(x))
         x = torch.relu(self.conv2(x))
+        x = torch.relu(self.conv3(x))
         x = x.view(x.size(0), -1)
         x = torch.relu(self.fc1(x))
         x = self.fc2(x)
