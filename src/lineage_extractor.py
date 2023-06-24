@@ -1,6 +1,7 @@
 # data source is https://cov-lineages.org/lineage_list.html
 import os
 import random
+import subprocess
 
 import pandas as pd
 import requests
@@ -12,19 +13,10 @@ SAMPLE_NUMBER = 100
 def download_lineage_meta():
     url = 'https://www.ebi.ac.uk/ebisearch/ws/rest/embl-covid19/download?query=&format=tsv&fields=id,lineage,collection_date,country,center_name,host,TAXON,coverage,who'
     print("downloading lineage_meta.tsv")
-
-    response = requests.get(url)
-    print("finished downloading lineage_meta.tsv")
-
-    if response.status_code == 200:
-        data = response.text
-        # print(data)
-        with open('./data/lineage_meta.tsv', 'w') as f:
-            f.write(data)
-
-    else:
-        print("An error occurred. Status code:", response.status_code)
-        exit(1)
+    command = ["curl", "-o", './data/lineage_meta.tsv', url]
+    process = subprocess.Popen(command)
+    process.wait()
+    pass
 
 
 def get_data_for_classifier(classifier_type: str = 'common'):
@@ -52,7 +44,7 @@ def get_data_for_classifier(classifier_type: str = 'common'):
     for lineage in lineages_accession_id_dict.keys():
         # get random SAMPLE_NUMBER accession id
         lineages_accession_id_dict[lineage] = random.sample(lineages_accession_id_dict[lineage], SAMPLE_NUMBER)
-        print(f"running request ./data/{classifier_type}/{lineage}.fasta")
+        print(f"running request ../data/{classifier_type}/{lineage}.fasta")
         download_lineage_accessions(lineages_accession_id_dict[lineage], f'./data/{classifier_type}/{lineage}.fasta')
 
 
