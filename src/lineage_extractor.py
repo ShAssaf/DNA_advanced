@@ -6,7 +6,7 @@ import subprocess
 import pandas as pd
 import requests
 
-VARIANT_NUMBER = 100
+VARIANT_NUMBER = 65
 SAMPLE_NUMBER = 100
 
 
@@ -44,7 +44,7 @@ def get_data_for_classifier(classifier_type: str = 'common'):
     for lineage in lineages_accession_id_dict.keys():
         # get random SAMPLE_NUMBER accession id
         lineages_accession_id_dict[lineage] = random.sample(lineages_accession_id_dict[lineage], SAMPLE_NUMBER)
-        print(f"running request ../data/{classifier_type}/{lineage}.fasta")
+        print(f"running request ./data/{classifier_type}/{lineage}.fasta")
         download_lineage_accessions(lineages_accession_id_dict[lineage], f'./data/{classifier_type}/{lineage}.fasta')
 
 

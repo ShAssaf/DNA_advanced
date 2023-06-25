@@ -9,6 +9,8 @@ def load_data(directory):
         if filename.endswith(".fasta"):
             lineage = filename.replace(".fasta", "")
             sequences = list(SeqIO.parse(os.path.join(directory, filename), "fasta"))
+            for sequence in sequences:
+                sequence.seq = filter_nonstandard(str(sequence.seq))
             data[lineage] = [str(seq.seq) for seq in sequences]
     return data
 
