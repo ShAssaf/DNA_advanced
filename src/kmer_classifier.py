@@ -2,10 +2,13 @@ import numpy
 import numpy as np
 import pytorch_lightning as pl
 import torch
+from matplotlib import pyplot as plt
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from torch.utils.data import DataLoader
+from pytorch_lightning import loggers
+
 
 from src.common_func import load_data
 from src.netmodel import Net
@@ -81,19 +84,25 @@ val_loader = DataLoader(test_data, batch_size=32)
 
 # Create model
 model = Net(input_shape=X_train.shape[1:], num_classes=len(classes))
-
+print("input_shape", X_train.shape[1:], " num_classes", len(classes))
 # Train the model
-trainer = pl.Trainer(max_epochs=25, devices=1) #, accelerator="gpu"
+
+tb_logger = loggers.TensorBoardLogger('logs/')
+trainer = pl.Trainer(max_epochs=25, logger=tb_logger, accelerator="gpu")
 trainer.fit(model, train_loader, val_loader)
 # Retrieve the training and validation losses from the trainer object
 
-
+# save model
+torch.save(model.state_dict(), './model/kmer_model.pth')
 # Set model to evaluation mode
 model.eval()
 
 # Initialize variables for accuracy calculation
+# Initialize variables for accuracy and loss calculation
 correct = 0
 total = 0
+loss_function = torch.nn.CrossEntropyLoss()  # Use the same loss function as during training
+losses = []
 
 # Iterate over test dataloader and compute predictions
 with torch.no_grad():
@@ -103,9 +112,25 @@ with torch.no_grad():
         outputs = model(inputs)
         _, predicted = torch.max(outputs.data, 1)
 
+        # Calculate loss
+        loss = loss_function(outputs, labels)
+        losses.append(loss.item())
+
         # Update accuracy count
         total += labels.size(0)
         correct += (predicted == labels).sum().item()
+
+plt.figure(figsize=(10, 5))
+plt.plot(losses)
+plt.title('Test Loss')
+plt.xlabel('Batch')
+plt.ylabel('Loss')
+plt.savefig('test_loss.png')  # saves the plot to 'test_loss.png'
+plt.show()
+# Calculate accuracy
+accuracy = correct / total
+print('Test Accuracy:', accuracy)
+
 
 # Calculate accuracy
 accuracy = correct / total
