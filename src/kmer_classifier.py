@@ -9,14 +9,12 @@ from sklearn.preprocessing import LabelEncoder
 from torch.utils.data import DataLoader
 from pytorch_lightning import loggers
 
-
 from src.common_func import load_data
 from src.netmodel import Net
 
 
 def Kmers_funct(seq, size):
-    return [seq[x:x+size].lower() for x in range(len(seq) - size + 1)]
-
+    return [seq[x:x + size].lower() for x in range(len(seq) - size + 1)]
 
 
 def data_into_kmers_count(data):
@@ -36,14 +34,14 @@ def data_into_kmers_count(data):
         k_mers_count_dict[lineage] = numpy.array(k_mers_sequences_count)
     return k_mers_count_dict
 
+
 def generate_all_combs():
     from itertools import product
-    li = ['A', 'T', 'G','C']
+    li = ['A', 'T', 'G', 'C']
     combinations = []
     for comb in product(li, repeat=len(li)):
         combinations.append(''.join(comb))
     return ' '.join(combinations)
-
 
 
 def k_merprepare_data(data_encoded):
@@ -51,11 +49,11 @@ def k_merprepare_data(data_encoded):
     y = []
     size = 100
     min_seq_len = min([len(arr) for values in data_encoded.values() for arr in values])
-    resize_len =size - min_seq_len % size
+    resize_len = size - min_seq_len % size
     for lineage, sequences in data_encoded.items():
 
         for sequence in sequences:
-            X.append(np.resize( sequence[:min_seq_len] ,min_seq_len+resize_len).reshape(-1,size))
+            X.append(np.resize(sequence[:min_seq_len], min_seq_len + resize_len).reshape(-1, size))
             y.append(lineage)
 
     le = LabelEncoder()
@@ -63,6 +61,7 @@ def k_merprepare_data(data_encoded):
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     return X_train, X_test, y_train, y_test, le.classes_
+
 
 data_directory = './data/common'
 data = load_data(data_directory)
@@ -107,7 +106,6 @@ losses = []
 # Iterate over test dataloader and compute predictions
 with torch.no_grad():
     for inputs, labels in val_loader:
-
         # Forward pass
         outputs = model(inputs)
         _, predicted = torch.max(outputs.data, 1)
@@ -130,7 +128,6 @@ plt.show()
 # Calculate accuracy
 accuracy = correct / total
 print('Test Accuracy:', accuracy)
-
 
 # Calculate accuracy
 accuracy = correct / total

@@ -16,7 +16,7 @@ def download_lineage_meta():
     command = ["curl", "-o", './data/lineage_meta.tsv', url]
     process = subprocess.Popen(command)
     process.wait()
-    pass
+
 
 
 def get_data_for_classifier(classifier_type: str = 'common'):
@@ -54,6 +54,8 @@ def download_lineage_accessions(accession_ids: list = None, output_file: str = N
 
     if response.status_code == 200:
         data = response.text
+        if output_file.split('/')[2] not in os.listdir('./data'):
+            os.mkdir('./data/' + output_file.split('/')[2])
         # print(data)
         with open(output_file, 'w') as f:
             f.write(data)
