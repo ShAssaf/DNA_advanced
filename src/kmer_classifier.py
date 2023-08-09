@@ -24,7 +24,8 @@ def data_into_kmers_count(data):
         k_mers_sequences.append(generate_all_combs())
         k_mers_sequences_count_test = []
         for sequence in sequences:
-            k_mers_sequences.append(' '.join(Kmers_funct(sequence, size=4)))
+            kmer_list = Kmers_funct(sequence, size=6)
+            k_mers_sequences.append(' '.join(kmer_list))
             # c = ' '.join(Kmers_funct(sequence, size=6))
             # tmp = cv.fit_transform([c])
             # k_mers_sequences_count_test.append(tmp.toarray()[0])

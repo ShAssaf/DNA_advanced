@@ -1,6 +1,5 @@
 import os
 
-
 import torch
 import pytorch_lightning as pl
 import torch.nn as nn
@@ -31,6 +30,7 @@ def one_hot_encoding(data):
                     for lineage, sequences in data.items()}
     return data_encoded, encoder.classes_
 
+
 # Prepare data for the model
 def prepare_data(data_encoded, classes):
     X = []
@@ -50,7 +50,6 @@ def prepare_data(data_encoded, classes):
 
 
 # Define the model
-
 
 
 # Load data
@@ -81,7 +80,7 @@ model = Net(input_shape=X_train.shape[1:], num_classes=len(classes))
 
 # Train the model
 print("training model")
-trainer = pl.Trainer(max_epochs=100, devices=1) #, accelerator="gpu"
+trainer = pl.Trainer(max_epochs=100, devices=1)  # , accelerator="gpu"
 trainer.fit(model, train_loader, val_loader)
 # Retrieve the training and validation losses from the trainer object
 
@@ -96,7 +95,6 @@ total = 0
 # Iterate over test dataloader and compute predictions
 with torch.no_grad():
     for inputs, labels in val_loader:
-
         # Forward pass
         outputs = model(inputs)
         _, predicted = torch.max(outputs.data, 1)
