@@ -23,12 +23,8 @@ def data_into_kmers_count(data):
     for lineage, sequences in data.items():
         k_mers_sequences = []
         k_mers_sequences.append(generate_all_combs())
-        k_mers_sequences_count_test = []
         for sequence in sequences:
             k_mers_sequences.append(' '.join(Kmers_funct(sequence, size=4)))
-            # c = ' '.join(Kmers_funct(sequence, size=6))
-            # tmp = cv.fit_transform([c])
-            # k_mers_sequences_count_test.append(tmp.toarray()[0])
         k_mers_sequences_count = cv.fit_transform(k_mers_sequences).toarray()
 
         k_mers_count_dict[lineage] = numpy.array(k_mers_sequences_count)
@@ -65,7 +61,12 @@ def k_merprepare_data(data_encoded):
 
 data_directory = './data/common'
 data = load_data(data_directory)
-k_mers_count_dict = data_into_kmers_count(data)
+# load kmer_count_dict
+k_mers_count_dict = {}
+for lineage in data.keys():
+    k_mers_count_dict[lineage] = np.load(f'./data/kmers_dict/{lineage}.npy')
+
+
 
 X_train, X_test, y_train, y_test, classes = k_merprepare_data(k_mers_count_dict)
 
@@ -91,10 +92,13 @@ trainer = pl.Trainer(max_epochs=25, logger=tb_logger, accelerator="gpu")
 trainer.fit(model, train_loader, val_loader)
 # Retrieve the training and validation losses from the trainer object
 
+
 # save model
 torch.save(model.state_dict(), './model/kmer_model.pth')
 # Set model to evaluation mode
 model.eval()
+
+
 
 # Initialize variables for accuracy calculation
 # Initialize variables for accuracy and loss calculation
@@ -118,14 +122,7 @@ with torch.no_grad():
         total += labels.size(0)
         correct += (predicted == labels).sum().item()
 
-plt.figure(figsize=(10, 5))
-plt.plot(losses)
-plt.title('Test Loss')
-plt.xlabel('Batch')
-plt.ylabel('Loss')
-plt.savefig('test_loss.png')  # saves the plot to 'test_loss.png'
-plt.show()
-# Calculate accuracy
+
 accuracy = correct / total
 print('Test Accuracy:', accuracy)
 
